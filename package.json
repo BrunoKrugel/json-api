@@ -2,10 +2,10 @@
   "name": "json-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -22,12 +22,19 @@
     "express": "^4.17.3",
     "express-generator": "^4.2.0",
     "jest": "^27.5.1",
+    "supertest": "^6.2.2",
     "underscore": "^1.13.2"
   },
   "jest": {
     "collectCoverage": true,
-    "collectCoverageFrom": ["./src/**"],
-    "coverageReporters": ["json", "text-summary", "lcov"],
+    "collectCoverageFrom": [
+      "./src/**"
+    ],
+    "coverageReporters": [
+      "json",
+      "text-summary",
+      "lcov"
+    ],
     "coverageThreshold": {
       "global": {
         "lines": 40

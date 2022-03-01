@@ -33,7 +33,7 @@ test('Validate Sort: Desc', () => {
     expect(postSort(list, "id", "desc")).toMatchObject(expectedList);
 });
 
-test('Remove Duplicates:', () => {
+test('Remove Duplicates', () => {
     let list = [{ "id": 1 }, {"id": 1 }];
     let expectedList = [{ "id": 1 }];
     expect(removePostDuplicates(list)).toMatchObject(expectedList);

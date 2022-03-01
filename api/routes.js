@@ -1,37 +1,32 @@
-var axios = require('axios').default;
-var _ = require('underscore');
+const {
+    fetchTag
+} = require('../src/fetchTag');
 
-var express = require("express");
-var app = express();
+const {
+    validateSortBy,
+    validateSortOrder,
+    postSort,
+    removePostDuplicates
+} = require('../src/arrayFunctions');
 
-const { validateSortBy, validateSortOrder, postSort, removePostDuplicates } = require('./src/arrayFunctions');
+const express = require('express');
+const router = express.Router();
+const _ = require('underscore');
 
-const cachedMap = new Map();
-
-async function fetchTag(tag) {
-    var res = await axios.get('https://api.hatchways.io/assessment/blog/posts', {
-        params: {
-            tag: tag
-        }
-    });
-    return res.data
-}
 
 function cacheMiddleware(req, res, next) {
+    let cachedMap = new Map();
 
     var tag = req.query.tags;
     var sortBy = req.query.sortBy;
     var sortOrder = req.query.sortOrder;
     var cacheKey = `${tag}_${sortBy}_${sortOrder}`;
-    console.log(cacheKey);
     var cached = cachedMap.get(cacheKey);
 
     if (cached) {
-        console.log("Cache hit");
         res.writeHead(cached.status, cached.headers);
         res.end(cached.data);
     } else {
-        console.log('Cache not hit');
         res.oldSend = res.send;
         res.send = function (data) {
             let cachedObject = {
@@ -46,18 +41,16 @@ function cacheMiddleware(req, res, next) {
     }
 }
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
-});
 
-app.get("/api/ping", (req, res, next) => {
+router.get("/api/ping", (req, res, next) => {
     res.statusCode = 200;
     res.json({
         "success": "true"
     });
 });
 
-app.get("/api/posts", cacheMiddleware,  (req, res, next) => {
+
+router.get("/api/posts", cacheMiddleware, (req, res, next) => {
 
     if (req.query.tags === undefined) {
         res.statusCode = 400;
@@ -112,3 +105,5 @@ app.get("/api/posts", cacheMiddleware,  (req, res, next) => {
         });
     });
 });
+
+module.exports = router;
