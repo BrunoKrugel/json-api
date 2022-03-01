@@ -1,12 +1,10 @@
-var express = require("express");
 var axios = require('axios').default;
 var _ = require('underscore');
 
+var express = require("express");
 var app = express();
 
-const sortByValues = ['id', 'reads', 'likes', 'popularity'];
-const sortByOrder = ['asc', 'desc'];
-
+const cachedMap = new Map();
 
 async function fetchTag(tag) {
     var res = await axios.get('https://api.hatchways.io/assessment/blog/posts', {
@@ -17,7 +15,37 @@ async function fetchTag(tag) {
     return res.data
 }
 
+function cacheMiddleware(req, res, next) {
+
+    var tag = req.query.tags;
+    var sortBy = req.query.sortBy;
+    var sortOrder = req.query.sortOrder;
+    var cacheKey = `${tag}_${sortBy}_${sortOrder}`;
+    console.log(cacheKey);
+    var cached = cachedMap.get(cacheKey);
+
+    if (cached) {
+        console.log("Cache hit");
+        res.writeHead(cached.status, cached.headers);
+        res.end(cached.data);
+    } else {
+        console.log('Cache not hit');
+        res.oldSend = res.send;
+        res.send = function (data) {
+            let cachedObject = {
+                data: data,
+                status: res.statusCode,
+                headers: res.getHeaders()
+            }
+            cachedMap.set(cacheKey, cachedObject);
+            res.oldSend(data);
+        }
+        next();
+    }
+}
+
 function validateSortBy(sortBy) {
+    const sortByValues = ['id', 'reads', 'likes', 'popularity'];
     if (sortByValues.indexOf(sortBy) === -1) {
         return false;
     }
@@ -25,10 +53,16 @@ function validateSortBy(sortBy) {
 }
 
 function validateSortOrder(sortOrder) {
+    const sortByOrder = ['asc', 'desc'];
     if (sortByOrder.indexOf(sortOrder) === -1) {
         return false;
     }
     return true;
+}
+
+function removePostDuplicates(posts) {
+    let lookupKey = new Set();
+    return posts.filter(post => !lookupKey.has(post["id"]) && lookupKey.add(post["id"]));
 }
 
 function postSort(list, sortBy, direction) {
@@ -90,8 +124,7 @@ app.get("/api/posts", (req, res, next) => {
         }, []);
 
         //Duplicates
-        let lookupKey = new Set();
-        result = result.filter(post => !lookupKey.has(post["id"]) && lookupKey.add(post["id"]));
+        result = removePostDuplicates(result);
         //Sort
         result = postSort(result, sortBy, direction);
 
