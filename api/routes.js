@@ -5,7 +5,7 @@ const {
     removePostDuplicates
 } = require('../src/arrayFunctions');
 
-const fetchTag = require('../src/fetchTag');
+const { fetchTag } = require('../src/fetchTag');
 const express = require('express');
 const router = express.Router();
 const _ = require('underscore');
