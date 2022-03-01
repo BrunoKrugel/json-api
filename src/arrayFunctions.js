@@ -24,6 +24,8 @@ function removePostDuplicates(posts) {
     let lookupKey = new Set();
     return posts.filter(post => !lookupKey.has(post["id"]) && lookupKey.add(post["id"]));
 }
+module.exports.removePostDuplicates = removePostDuplicates;
+
 
 function postSort(list, sortBy, direction) {
     var sorted = _.sortBy(list, sortBy);

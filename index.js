@@ -4,6 +4,8 @@ var _ = require('underscore');
 var express = require("express");
 var app = express();
 
+const { validateSortBy, validateSortOrder, postSort, removePostDuplicates } = require('./src/arrayFunctions');
+
 const cachedMap = new Map();
 
 async function fetchTag(tag) {
@@ -44,35 +46,6 @@ function cacheMiddleware(req, res, next) {
     }
 }
 
-function validateSortBy(sortBy) {
-    const sortByValues = ['id', 'reads', 'likes', 'popularity'];
-    if (sortByValues.indexOf(sortBy) === -1) {
-        return false;
-    }
-    return true;
-}
-
-function validateSortOrder(sortOrder) {
-    const sortByOrder = ['asc', 'desc'];
-    if (sortByOrder.indexOf(sortOrder) === -1) {
-        return false;
-    }
-    return true;
-}
-
-function removePostDuplicates(posts) {
-    let lookupKey = new Set();
-    return posts.filter(post => !lookupKey.has(post["id"]) && lookupKey.add(post["id"]));
-}
-
-function postSort(list, sortBy, direction) {
-    var sorted = _.sortBy(list, sortBy);
-    if (direction === 'desc') {
-        sorted.reverse();
-    }
-    return sorted;
-}
-
 app.listen(3000, () => {
     console.log("Server running on port 3000");
 });
@@ -84,7 +57,7 @@ app.get("/api/ping", (req, res, next) => {
     });
 });
 
-app.get("/api/posts", (req, res, next) => {
+app.get("/api/posts", cacheMiddleware,  (req, res, next) => {
 
     if (req.query.tags === undefined) {
         res.statusCode = 400;

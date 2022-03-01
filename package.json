@@ -27,7 +27,7 @@
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": ["./src/**"],
-    "coverageReporters": ["json", "text-summary"],
+    "coverageReporters": ["json", "text-summary", "lcov"],
     "coverageThreshold": {
       "global": {
         "lines": 40
