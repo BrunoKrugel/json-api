@@ -1,14 +1,11 @@
 const {
-    fetchTag
-} = require('../src/fetchTag');
-
-const {
     validateSortBy,
     validateSortOrder,
     postSort,
     removePostDuplicates
 } = require('../src/arrayFunctions');
 
+const fetchTag = require('../src/fetchTag');
 const express = require('express');
 const router = express.Router();
 const _ = require('underscore');

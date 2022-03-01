@@ -8,4 +8,4 @@ async function fetchTag(tag) {
     });
     return res.data
 }
-module.exports.fetchTag = fetchTag;
+module.exports = fetchTag;
